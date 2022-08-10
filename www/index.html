@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Awesome Capacitor App</title>
+  <meta name="viewport"
+    content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+
+  <script type="module"
+    src="https://unpkg.com/@ionic/pwa-elements@latest/dist/ionicpwaelements/ionicpwaelements.esm.js"></script>
+  <script nomodule
+    src="https://unpkg.com/@ionic/pwa-elements@latest/dist/ionicpwaelements/ionicpwaelements.js"></script>
+
+  <link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+  <meta name="theme-color" content="#31d53d" />
+
+  <!-- un-comment this code to enable service worker
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('service worker installed'))
+        .catch(err => console.log('Error', err));
+    }
+  </script>-->
+</head>
+
+<body>
+  <capacitor-welcome></capacitor-welcome>
+
+  <h1>Clerk Capacitor starter</h1>
+
+  <div id="auth-links">
+    <a href="javascript:void(0)" onclick="Clerk.openSignUp()">Sign Up</a> |
+    <a href="javascript:void(0)" onclick="Clerk.openSignIn()"">Sign In</a>
+  </div>
+
+  <div id="user-button">
+  </div>
+
+  <!--
+    This simple example uses Capacitor Core as a bundled file.
+    For large apps, we recommend using a bundler/module loader such as
+    rollup or webpack and importing Capacitor using ES2015 imports.
+  -->
+  <script src="capacitor.js"></script>
+
+  <script src="js/capacitor-welcome.js"></script>
+
+  <script src="https://clerk.leading.oryx-96.dev.lclclerk.com/npm/@clerk/clerk-js@4/dist/clerk.browser.js" crossorigin="anonymous"
+    data-clerk-frontend-api="clerk.leading.oryx-96.dev.lclclerk.com">
+    </script>
+
+  <script>
+    window.startClerk = async () => {
+      try {
+        Clerk.__unstable__onBeforeRequest(async (requestInit) => {
+          requestInit.credentials = 'omit';
+
+          // Short-circuits dev browser flow in FAPI.
+          // Otherwise, the current client type detection will assume this is a standard browser request.
+          requestInit.url?.searchParams.append('_is_native', '1');
+
+          requestInit.headers.set('authorization', window.jwt || '');
+        });
+
+        Clerk.__unstable__onAfterResponse(async (_, response) => {
+          const authHeader = response.headers.get('authorization');
+
+          if (authHeader) {
+            // TODO: The __session JWT should be stored in a browser storage so that client persists for the origin.
+            // Otherwise, many flows such as the magic link flow will operate as if they are not in the same client.
+            // That's not a problem of course when the app runs in a native device.
+            window.jwt = authHeader;
+          }
+        });
+
+        // Load Clerk environment & session if available in a non standardBrowser environme
+        await Clerk.load({ standardBrowser: false });
+
+        const userButtonEl = document.getElementById('user-button');
+        const authLinks = document.getElementById('auth-links');
+
+        if (Clerk.user) {
+          // Mount user button component
+          Clerk.mountUserButton(userButtonEl);
+          authLinks.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Clerk: ', err);
+      }
+    };
+    window.startClerk();
+  </script>
+</body>
+
+</html>
