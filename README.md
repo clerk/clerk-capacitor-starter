@@ -19,6 +19,8 @@ This example shows how to use [Clerk](https://www.clerk.dev/?utm_source=github&u
 [![documentation](https://img.shields.io/badge/documentation-clerk-green.svg)](https://docs.clerk.dev)
 [![twitter](https://img.shields.io/twitter/follow/ClerkDev?style=social)](https://twitter.com/intent/follow?screen_name=ClerkDev)
 
+> **Note:** This is an example implementation that does not come with maintenance guarantees. This is not an official Clerk SDK for Capacitor.
+
 ---
 
 **Clerk is Hiring!**
